@@ -21,6 +21,7 @@ namespace Academy.DAL
             services.AddScoped(typeof(IRepositoryAsync<,>), typeof(EfCoreRepositoryAsync<,>));
             services.AddScoped<IStudentRepository, StudentRepository>();
             services.AddScoped<IGroupRepository, GroupRepository>();
+            services.AddScoped<DataInitializer>();
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using Academy.DAL.DataContext.Entities;
+using Core.Persistence.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -6,7 +8,7 @@ using System.Text;
 
 namespace Academy.DAL.DataContext
 {
-    public class AcademyDbContext : DbContext
+    public class AcademyDbContext : IdentityDbContext<AppUser>
     {
         public AcademyDbContext(DbContextOptions<AcademyDbContext> options) : base(options)
         {
