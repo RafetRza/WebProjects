@@ -19,7 +19,7 @@ namespace Core.Application.AuthService
             _configuration = configuration;
         }
 
-        public string GetToken(AppUser appUser, IList<string> roles)
+        public string GetToken(string userId, string userName, IList<string> roles)
         {
             var jwtSettings = _configuration.GetSection("Jwt");
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"] ?? throw new InvalidOperationException("SecretKey is missing")));
@@ -27,10 +27,10 @@ namespace Core.Application.AuthService
 
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, appUser.UserName ?? ""),
+                new Claim(JwtRegisteredClaimNames.Sub, userName ?? ""),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, appUser.Id),
-                new Claim(ClaimTypes.Name, appUser.UserName ?? "")
+                new Claim(ClaimTypes.NameIdentifier, userId),
+                new Claim(ClaimTypes.Name, userName ?? "")
             };
 
             foreach (var role in roles)

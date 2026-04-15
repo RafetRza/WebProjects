@@ -9,7 +9,6 @@ namespace Academy.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
     public class GroupsController : ControllerBase
     {
         private readonly IGroupService _groupService;

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Academy.DAL.DataContext.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 

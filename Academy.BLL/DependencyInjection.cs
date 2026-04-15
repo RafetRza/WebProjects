@@ -19,6 +19,9 @@ namespace Academy.BLL
             }); 
             services.AddScoped(typeof(ICrudServiceAsync<,,,>), typeof(CrudManager<,,,>));
             services.AddScoped<IGroupService, GroupManager>();
+            services.AddScoped<IStudentService, StudentManager>();
+            services.AddScoped<ITeacherService, TeacherManager>();
+            services.AddScoped<IAttendanceService, AttendanceManager>();
             services.AddScoped<IAuthService, AuthManager>();
 
             services.AddApplication();

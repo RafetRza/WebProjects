@@ -1,5 +1,6 @@
 using Academy.BLL.DTOs;
 using Academy.BLL.Services.Interfaces;
+using Academy.DAL.DataContext.Entities;
 using Core.Application.Jwt;
 using Core.Persistence.Models;
 using Microsoft.AspNetCore.Identity;
@@ -35,7 +36,7 @@ namespace Academy.BLL.Services.Implementations
 
             var roles = await _userManager.GetRolesAsync(user);
 
-            return _tokenService.GetToken(user, roles);
+            return _tokenService.GetToken(user.Id, user.UserName!, roles);
         }
     }
 }

@@ -7,6 +7,6 @@ namespace Core.Application.Jwt
 {
     public interface ITokenService
     {
-        string GetToken(AppUser appUser, IList<string> roles);
+        string GetToken(string userId, string userName, IList<string> roles);
     }
 }

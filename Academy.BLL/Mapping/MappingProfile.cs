@@ -1,4 +1,4 @@
-﻿using Academy.BLL.DTOs;
+using Academy.BLL.DTOs;
 using Academy.DAL.DataContext.Entities;
 using AutoMapper;
 using Core.Persistence.Models;
@@ -18,7 +18,22 @@ namespace Academy.BLL.Mapping
             CreateMap<UpdateStudentDto, Student>().ReverseMap();
             CreateMap<PaginatedResult<Student>, PaginatedResultDto<StudentDto>>();
 
-            CreateMap<Group, GroupDto>().ReverseMap();
+            CreateMap<Teacher, TeacherDto>().ReverseMap();
+            CreateMap<CreateTeacherDto, Teacher>().ReverseMap();
+            CreateMap<UpdateTeacherDto, Teacher>().ReverseMap();
+            CreateMap<PaginatedResult<Teacher>, PaginatedResultDto<TeacherDto>>();
+
+            CreateMap<Attendance, AttendanceDto>()
+                .ForMember(dest => dest.StudentName, opt => opt.MapFrom(src => src.Student.Name))
+                .ForMember(dest => dest.GroupName, opt => opt.MapFrom(src => src.Student.Group.Name))
+                .ReverseMap();
+            CreateMap<CreateAttendanceDto, Attendance>().ReverseMap();
+            CreateMap<UpdateAttendanceDto, Attendance>().ReverseMap();
+             CreateMap<PaginatedResult<Attendance>, PaginatedResultDto<AttendanceDto>>();
+
+            CreateMap<Group, GroupDto>()
+                .ForMember(dest => dest.TeacherName, opt => opt.MapFrom(src => src.Teacher.Name))
+                .ReverseMap();
             CreateMap<CreateGroupDto, Group>().ReverseMap();
             CreateMap<UpdateGroupDto, GroupDto>().ReverseMap();
             CreateMap<PaginatedResult<Group>, PaginatedResultDto<GroupDto>>();
