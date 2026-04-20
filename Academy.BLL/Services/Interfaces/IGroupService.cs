@@ -1,4 +1,4 @@
-﻿using Academy.BLL.DTOs;
+using Academy.BLL.DTOs;
 using Academy.DAL.DataContext.Entities;
 using System;
 using System.Collections.Generic;
@@ -8,5 +8,6 @@ namespace Academy.BLL.Services.Interfaces
 {
     public interface IGroupService : ICrudServiceAsync<Group, GroupDto, CreateGroupDto, UpdateGroupDto>
     {
+        Task<IEnumerable<GroupDto>> GetByTeacherUserIdAsync(string userId);
     }
 }

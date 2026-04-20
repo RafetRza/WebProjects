@@ -2,11 +2,12 @@ using Academy.BLL.DTOs;
 using Academy.MVC.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Academy.MVC.Areas.TeacherPanel.Controllers
 {
     [Area("TeacherPanel")]
-    [Authorize(Roles = "Teacher")]
+    [Authorize(Roles ="Teacher")]
     public class GroupController : Controller
     {
         private readonly ApiClient _apiClient;
@@ -20,7 +21,15 @@ namespace Academy.MVC.Areas.TeacherPanel.Controllers
         {
             try
             {
-                var groups = await _apiClient.GetAsync<List<GroupDto>>("api/groups");
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    ViewBag.Error = "Could not identify the current teacher.";
+                    return View(Enumerable.Empty<GroupDto>());
+                }
+
+                var groups = await _apiClient.GetAsync<List<GroupDto>>($"api/groups/byteacher/{userId}");
 
                 if (groups is null)
                 {

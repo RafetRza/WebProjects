@@ -40,11 +40,28 @@ namespace Academy.MVC.Services
                 return default;
             }
 
-            await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-            return await JsonSerializer.DeserializeAsync<T>(stream, new JsonSerializerOptions
+            var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            if (string.IsNullOrWhiteSpace(responseBody))
+            {
+                return default;
+            }
+
+            return JsonSerializer.Deserialize<T>(responseBody, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
-            }, cancellationToken);
+            });
+        }
+
+        public async Task<bool> PostAsync(string requestUri, object data, CancellationToken cancellationToken = default)
+        {
+            var json = JsonSerializer.Serialize(data);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync(requestUri, content, cancellationToken);
+
+            return response.IsSuccessStatusCode;
         }
     }
 }
+

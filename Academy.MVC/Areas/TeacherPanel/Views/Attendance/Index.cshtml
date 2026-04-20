@@ -1,0 +1,513 @@
+@using Academy.BLL.DTOs
+@{
+    ViewData["Title"] = "Daily Attendance";
+    var groups = ViewBag.Groups as List<GroupDto> ?? new List<GroupDto>();
+    var students = ViewBag.Students as List<GroupStudentDto> ?? new List<GroupStudentDto>();
+    var attendances = ViewBag.Attendances as List<AttendanceDto> ?? new List<AttendanceDto>();
+    var selectedDate = ViewBag.SelectedDate as string ?? DateTime.Today.ToString("yyyy-MM-dd");
+    int? selectedGroupId = ViewBag.SelectedGroupId as int?;
+}
+
+<style>
+    .attendance-header {
+        background: linear-gradient(135deg, #1e1b4b, #312e81);
+        border-radius: 16px;
+        padding: 28px 32px;
+        margin-bottom: 28px;
+        color: white;
+    }
+
+    .attendance-header h2 {
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .attendance-header p {
+        opacity: 0.7;
+        margin-bottom: 0;
+        font-size: 14px;
+    }
+
+    .filter-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 24px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        margin-bottom: 24px;
+        border: 1px solid #f0f0f0;
+    }
+
+    .filter-card label {
+        font-weight: 600;
+        font-size: 13px;
+        color: #4b5563;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+    }
+
+    .filter-card .form-select,
+    .filter-card .form-control {
+        border-radius: 10px;
+        border: 1.5px solid #e5e7eb;
+        padding: 10px 14px;
+        font-size: 15px;
+        transition: all 0.2s ease;
+    }
+
+    .filter-card .form-select:focus,
+    .filter-card .form-control:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+    }
+
+    .btn-filter {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        border: none;
+        border-radius: 10px;
+        padding: 10px 24px;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-filter:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+        color: white;
+    }
+
+    .attendance-table-card {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        border: 1px solid #f0f0f0;
+        overflow: hidden;
+    }
+
+    .attendance-table {
+        margin-bottom: 0;
+    }
+
+    .attendance-table thead {
+        background: #f8f9fc;
+    }
+
+    .attendance-table thead th {
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #6b7280;
+        padding: 14px 16px;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .attendance-table tbody td {
+        padding: 12px 16px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: 14px;
+    }
+
+    .attendance-table tbody tr {
+        transition: background 0.15s ease;
+    }
+
+    .attendance-table tbody tr:hover {
+        background: #fafafe;
+    }
+
+    .student-name {
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .student-index {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        background: #f3f4f6;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    /* Radio button group styling */
+    .status-group {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .status-radio {
+        display: none;
+    }
+
+    .status-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1.5px solid #e5e7eb;
+        background: #fff;
+        color: #6b7280;
+        user-select: none;
+    }
+
+    .status-label:hover {
+        border-color: #d1d5db;
+        background: #f9fafb;
+    }
+
+    .status-radio:checked + .status-label.status-present {
+        background: #ecfdf5;
+        border-color: #10b981;
+        color: #059669;
+    }
+
+    .status-radio:checked + .status-label.status-absent {
+        background: #fef2f2;
+        border-color: #ef4444;
+        color: #dc2626;
+    }
+
+    .status-radio:checked + .status-label.status-late {
+        background: #fffbeb;
+        border-color: #f59e0b;
+        color: #d97706;
+    }
+
+    .status-radio:checked + .status-label.status-excused {
+        background: #eff6ff;
+        border-color: #3b82f6;
+        color: #2563eb;
+    }
+
+    .btn-save {
+        background: linear-gradient(135deg, #10b981, #059669);
+        border: none;
+        border-radius: 12px;
+        padding: 14px 36px;
+        color: white;
+        font-weight: 700;
+        font-size: 15px;
+        transition: all 0.2s ease;
+        letter-spacing: 0.3px;
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 24px rgba(16, 185, 129, 0.35);
+        color: white;
+    }
+
+    .btn-save:active {
+        transform: translateY(0);
+    }
+
+    .alert-toast {
+        border-radius: 12px;
+        border: none;
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #9ca3af;
+    }
+
+    .empty-state i {
+        font-size: 48px;
+        margin-bottom: 16px;
+        display: block;
+        color: #d1d5db;
+    }
+
+    .empty-state h5 {
+        color: #6b7280;
+        margin-bottom: 8px;
+    }
+
+    .stats-bar {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .stat-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .stat-present { background: #ecfdf5; color: #059669; }
+    .stat-absent { background: #fef2f2; color: #dc2626; }
+    .stat-late { background: #fffbeb; color: #d97706; }
+    .stat-excused { background: #eff6ff; color: #2563eb; }
+
+    .quick-actions {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .btn-quick {
+        padding: 6px 16px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        border: 1.5px solid;
+        background: white;
+        transition: all 0.2s ease;
+    }
+
+    .btn-quick-present { border-color: #10b981; color: #059669; }
+    .btn-quick-present:hover { background: #ecfdf5; }
+    .btn-quick-absent { border-color: #ef4444; color: #dc2626; }
+    .btn-quick-absent:hover { background: #fef2f2; }
+</style>
+
+<div class="attendance-header">
+    <h2><i class="fas fa-clipboard-check me-2"></i>Daily Attendance</h2>
+    <p>Select a group and date to manage student attendance</p>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-toast d-flex align-items-center gap-2 shadow-sm" role="alert">
+        <i class="fas fa-check-circle"></i> @TempData["Success"]
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-toast d-flex align-items-center gap-2 shadow-sm" role="alert">
+        <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+    </div>
+}
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-warning alert-toast" role="alert">
+        <i class="fas fa-exclamation-triangle me-1"></i> @ViewBag.Error
+    </div>
+}
+
+<!-- Filters -->
+<div class="filter-card">
+    <form method="get" asp-action="Index">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="groupId" class="form-label">Group</label>
+                <select name="groupId" id="groupId" class="form-select" required>
+                    <option value="">— Select a group —</option>
+                    @foreach (var group in groups)
+                    {
+                        <option value="@group.Id" selected="@(selectedGroupId == group.Id)">
+                            @group.Name (@group.Students.Count() students)
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="date" class="form-label">Date</label>
+                <input type="date" name="date" id="date" class="form-control" value="@selectedDate" max="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-filter">
+                    <i class="fas fa-search me-1"></i> Load Attendance
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Attendance Table -->
+@if (selectedGroupId.HasValue && students.Any())
+{
+    var selectedGroup = groups.FirstOrDefault(g => g.Id == selectedGroupId.Value);
+
+    <form method="post" asp-action="SaveAttendance">
+        <input type="hidden" name="groupId" value="@selectedGroupId" />
+        <input type="hidden" name="date" value="@selectedDate" />
+
+        <!-- Quick Actions -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            <div class="quick-actions">
+                <span class="text-muted small me-2 align-self-center">Quick set all:</span>
+                <button type="button" class="btn-quick btn-quick-present" onclick="setAllStatus(0)">
+                    <i class="fas fa-check me-1"></i>Present
+                </button>
+                <button type="button" class="btn-quick btn-quick-absent" onclick="setAllStatus(1)">
+                    <i class="fas fa-times me-1"></i>Absent
+                </button>
+            </div>
+
+            <div class="stats-bar" id="statsBar">
+                <!-- Updated by JS -->
+            </div>
+        </div>
+
+        <div class="attendance-table-card">
+            <div class="table-responsive">
+                <table class="table attendance-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">#</th>
+                            <th>Student</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < students.Count; i++)
+                        {
+                            var student = students[i];
+                            var existing = attendances.FirstOrDefault(a => a.StudentName == student.Name);
+                            var currentStatus = -1;
+                            if (existing != null)
+                            {
+                                if (existing.AttendanceStatus == "Present") currentStatus = 0;
+                                else if (existing.AttendanceStatus == "Absent") currentStatus = 1;
+                                else if (existing.AttendanceStatus == "Late") currentStatus = 2;
+                                else if (existing.AttendanceStatus == "Excused") currentStatus = 3;
+                            }
+
+                            <tr>
+                                <td><span class="student-index">@(i + 1)</span></td>
+                                <td class="student-name">@student.Name</td>
+                                <td>
+                                    <input type="hidden" name="studentIds" value="@student.Id" />
+                                    <div class="status-group">
+                                        <input type="radio" class="status-radio" name="statuses_@i" value="0"
+                                               id="present_@student.Id" @(currentStatus == 0 || currentStatus == -1 ? "checked" : "")
+                                               onchange="updateHiddenStatus(this, @i); updateStats();" />
+                                        <label for="present_@student.Id" class="status-label status-present">
+                                            <i class="fas fa-check-circle"></i> Present
+                                        </label>
+
+                                        <input type="radio" class="status-radio" name="statuses_@i" value="1"
+                                               id="absent_@student.Id" @(currentStatus == 1 ? "checked" : "")
+                                               onchange="updateHiddenStatus(this, @i); updateStats();" />
+                                        <label for="absent_@student.Id" class="status-label status-absent">
+                                            <i class="fas fa-times-circle"></i> Absent
+                                        </label>
+
+                                        <input type="radio" class="status-radio" name="statuses_@i" value="2"
+                                               id="late_@student.Id" @(currentStatus == 2 ? "checked" : "")
+                                               onchange="updateHiddenStatus(this, @i); updateStats();" />
+                                        <label for="late_@student.Id" class="status-label status-late">
+                                            <i class="fas fa-clock"></i> Late
+                                        </label>
+
+                                        <input type="radio" class="status-radio" name="statuses_@i" value="3"
+                                               id="excused_@student.Id" @(currentStatus == 3 ? "checked" : "")
+                                               onchange="updateHiddenStatus(this, @i); updateStats();" />
+                                        <label for="excused_@student.Id" class="status-label status-excused">
+                                            <i class="fas fa-shield-halved"></i> Excused
+                                        </label>
+
+                                        <!-- Hidden field to send as array -->
+                                        <input type="hidden" name="statuses" class="status-hidden" value="@(currentStatus >= 0 ? currentStatus : 0)" />
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <span class="text-muted small">
+                <i class="fas fa-info-circle me-1"></i>
+                @students.Count students in @(selectedGroup?.Name ?? "selected group") — @DateTime.Parse(selectedDate).ToString("dddd, MMMM dd, yyyy")
+            </span>
+            <button type="submit" class="btn btn-save">
+                <i class="fas fa-save me-2"></i>Save Attendance
+            </button>
+        </div>
+    </form>
+}
+else if (selectedGroupId.HasValue && !students.Any())
+{
+    <div class="attendance-table-card">
+        <div class="empty-state">
+            <i class="fas fa-user-graduate"></i>
+            <h5>No Students Found</h5>
+            <p>This group doesn't have any students assigned yet.</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="attendance-table-card">
+        <div class="empty-state">
+            <i class="fas fa-hand-pointer"></i>
+            <h5>Select a Group</h5>
+            <p>Choose a group and date above to start taking attendance.</p>
+        </div>
+    </div>
+}
+
+@section Scripts {
+<script>
+    function updateHiddenStatus(radio, index) {
+        var hiddens = document.querySelectorAll('.status-hidden');
+        if (hiddens[index]) {
+            hiddens[index].value = radio.value;
+        }
+    }
+
+    function setAllStatus(status) {
+        var total = document.querySelectorAll('.status-hidden').length;
+        for (var i = 0; i < total; i++) {
+            var radios = document.querySelectorAll('input[name="statuses_' + i + '"]');
+            radios.forEach(function (r) {
+                if (parseInt(r.value) === status) {
+                    r.checked = true;
+                }
+            });
+            document.querySelectorAll('.status-hidden')[i].value = status;
+        }
+        updateStats();
+    }
+
+    function updateStats() {
+        var hiddens = document.querySelectorAll('.status-hidden');
+        var counts = { 0: 0, 1: 0, 2: 0, 3: 0 };
+        hiddens.forEach(function (h) {
+            counts[parseInt(h.value)]++;
+        });
+
+        var statsBar = document.getElementById('statsBar');
+        if (statsBar) {
+            statsBar.innerHTML =
+                '<span class="stat-chip stat-present"><i class="fas fa-check-circle"></i> ' + counts[0] + ' Present</span>' +
+                '<span class="stat-chip stat-absent"><i class="fas fa-times-circle"></i> ' + counts[1] + ' Absent</span>' +
+                '<span class="stat-chip stat-late"><i class="fas fa-clock"></i> ' + counts[2] + ' Late</span>' +
+                '<span class="stat-chip stat-excused"><i class="fas fa-shield-halved"></i> ' + counts[3] + ' Excused</span>';
+        }
+    }
+
+    // Initialize stats on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        updateStats();
+    });
+</script>
+}

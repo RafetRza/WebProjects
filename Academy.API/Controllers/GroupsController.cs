@@ -1,4 +1,4 @@
-﻿using Academy.BLL.DTOs;
+using Academy.BLL.DTOs;
 using Academy.BLL.Services.Interfaces;
 using Core.Persistence.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -23,6 +23,13 @@ namespace Academy.API.Controllers
         {
             var groups = await _groupService.GetAllAsync();
 
+            return Ok(groups);
+        }
+
+        [HttpGet("byteacher/{userId}")]
+        public async Task<IActionResult> GetGroupsByTeacher(string userId)
+        {
+            var groups = await _groupService.GetByTeacherUserIdAsync(userId);
             return Ok(groups);
         }
 
