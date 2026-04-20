@@ -1,4 +1,5 @@
 using Academy.MVC.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,16 @@ builder.Services.AddHttpClient<ApiClient>(client =>
     var baseUrl = builder.Configuration["ApiSettings:BaseUrl"];
     client.BaseAddress = new Uri(baseUrl ?? "https://localhost:7200/");
 });
+
+// Configure cookie authentication
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/TeacherPanel/Account/Login";
+        options.AccessDeniedPath = "/TeacherPanel/Account/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromHours(2);
+        options.SlidingExpiration = true;
+    });
 
 var app = builder.Build();
 
@@ -23,6 +34,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();

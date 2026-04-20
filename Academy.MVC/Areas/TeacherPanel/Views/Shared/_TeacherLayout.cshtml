@@ -6,6 +6,7 @@
     <title>@ViewData["Title"] - Teacher Portal</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Academy.MVC.styles.css" asp-append-version="true" />
     <style>
@@ -29,10 +30,21 @@
         <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="navbar-nav">
-            <div class="nav-item text-nowrap">
-                <a class="nav-link px-3" asp-area="" asp-controller="Home" asp-action="Index">Back to Home</a>
-            </div>
+        <div class="navbar-nav ms-auto d-flex flex-row align-items-center gap-3 pe-3">
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <span class="text-light small">
+                    <i class="fas fa-user-circle me-1"></i> @User.Identity.Name
+                </span>
+                <form asp-area="TeacherPanel" asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-sign-out-alt me-1"></i>Logout
+                    </button>
+                </form>
+            }
+            <a class="nav-link px-3 text-light" asp-area="" asp-controller="Home" asp-action="Index">
+                <i class="fas fa-home me-1"></i>Home
+            </a>
         </div>
     </header>
 

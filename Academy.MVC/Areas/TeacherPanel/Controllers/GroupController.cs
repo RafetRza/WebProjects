@@ -1,10 +1,12 @@
-﻿using Academy.BLL.DTOs;
+using Academy.BLL.DTOs;
 using Academy.MVC.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Academy.MVC.Areas.TeacherPanel.Controllers
 {
     [Area("TeacherPanel")]
+    [Authorize(Roles = "Teacher")]
     public class GroupController : Controller
     {
         private readonly ApiClient _apiClient;
